@@ -1,0 +1,18 @@
+<!DOCTYPE html><html><head>
+<meta charset="utf-8">
+<title>Mistress Telemetry</title>
+<script>
+const ch = 3012091;               // your channel ID
+async function fetchData(){
+  const url = `https://api.thingspeak.com/channels/${ch}/feeds/last.json`;
+  const res = await fetch(url);
+  const j   = await res.json();
+  document.getElementById('out').textContent = JSON.stringify(j, null, 2);
+}
+setInterval(fetchData, 15000);     // 15-s refresh
+window.onload = fetchData;
+</script>
+</head><body style="font-family:monospace">
+  <h2>Mistress Live Feed</h2>
+  <pre id="out">loading…</pre>
+</body></html>
