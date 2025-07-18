@@ -1,4 +1,5 @@
-<!DOCTYPE html><html><head><meta charset="utf-8">
+<!DOCTYPE html>
+<html><head><meta charset="utf-8">
 <title>Telemetry</title>
 <style>
  body{font-family:monospace;background:#111;color:#eee;margin:0;padding:10px}
@@ -8,18 +9,16 @@
 </style>
 <script>
 /* ---- CONFIG ---- */
-const DATA_CH   = 3012091;                       // telemetry channel
-const CMD_CH    = 3012810;                       // command channel
-const CMD_WRITE = "J4BDBK2FWKAGLZN9";            // command write key
-const PUBLIC    = true;                          // true if CMD_CH is public
-const READ_KEY  = "3YEP34LVRFZDISRE";                            // set if CMD_CH private
+const DATA_CH = 3012091;   // telemetry channel ID
+const WORKER  = "https://cmd.domenic3001.workers.dev/?c=";  // base for all commands
+
 /* ---- Live fetch ---- */
 async function fetchData(){
   try{
     const u = `https://api.thingspeak.com/channels/${DATA_CH}/feeds/last.json`;
     const res = await fetch(u, {mode:"cors"});
     if(!res.ok) throw new Error(res.status+" "+res.statusText);
-    const j = await res.json();
+    const j  = await res.json();
     document.getElementById('out').textContent =
       JSON.stringify(j, null, 2);
   }catch(err){
@@ -30,26 +29,25 @@ async function fetchData(){
 }
 setInterval(fetchData, 15000);
 window.onload = fetchData;
-/* ---- Send command ---- */
-async function sendCmd(code){
-  const url = `https://api.thingspeak.com/update?api_key=${CMD_WRITE}&field1=${code}`;
-  await fetch(url);
-  alert("Command "+code+" queued");
-}
+
+/* ---- Helper to open worker URL ---- */
+function cmd(code){ open(WORKER + code); }
 </script></head><body>
+
 <h2>Live Feed</h2>
 <pre id="out">loading…</pre>
 
-<h3>Commands</h3>
-<button onclick="sendCmd(11)">CLR tokens</button>
-<button onclick="sendCmd(12)">GRACE flag</button>
-<button onclick="sendCmd(13)">CHEAT flag</button>
-<button onclick="sendCmd(21)">Vector Burst</button>
+<h3>Basic</h3>
+<button onclick="cmd(11)">CLR tokens</button>
+<button onclick="cmd(12)">GRACE flag</button>
+<button onclick="cmd(13)">CHEAT flag</button>
+<button onclick="cmd(21)">Vector Burst</button>
 
 <h3>Advanced</h3>
-<button onclick="open('https://cmd.domenic3001.workers.dev/?c=31')">Edge Kick</button>
-<button onclick="open('https://cmd.domenic3001.workers.dev/?c=32')">INTENSE</button>
-<button onclick="open('https://cmd.domenic3001.workers.dev/?c=50')">STOP</button>
-<button onclick="open('https://cmd.domenic3001.workers.dev/?c=99')">Reboot</button>
+<button onclick="cmd(31)">Edge Kick</button>
+<button onclick="cmd(32)">INTENSE override</button>
+<button onclick="cmd(50)">STOP 30 s</button>
+<button onclick="cmd(99)">Reboot ESP</button>
 
 </body></html>
+
