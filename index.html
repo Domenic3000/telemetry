@@ -1,18 +1,40 @@
-<!DOCTYPE html><html><head>
-<meta charset="utf-8">
+<!DOCTYPE html><html><head><meta charset="utf-8">
 <title>Telemetry</title>
+<style>
+ body{font-family:monospace;background:#111;color:#eee;margin:0;padding:10px}
+ h2,h3{margin:4px 0;color:#f26;}
+ button{margin:4px;padding:6px 12px;font-size:1rem;border-radius:4px}
+ pre{background:#222;padding:8px;border-radius:4px;max-width:95vw;overflow:auto}
+</style>
 <script>
-const ch = 3012091;               // your channel ID
+/* ---- CONFIG ---- */
+const DATA_CH   = 3012091;                       // telemetry channel
+const CMD_CH    = 3012810;                       // command channel
+const CMD_WRITE = J4BDBK2FWKAGLZN9;            // command write key
+const PUBLIC    = true;                          // true if CMD_CH is public
+const READ_KEY  = 3YEP34LVRFZDISRE;                            // set if CMD_CH private
+/* ---- Live fetch ---- */
 async function fetchData(){
-  const url = `https://api.thingspeak.com/channels/${ch}/feeds/last.json`;
-  const res = await fetch(url);
-  const j   = await res.json();
-  document.getElementById('out').textContent = JSON.stringify(j, null, 2);
+  const u = `https://api.thingspeak.com/channels/${DATA_CH}/feeds/last.json`;
+  const j = await (await fetch(u)).json();
+  document.getElementById('out').textContent =
+    JSON.stringify(j, null, 2);
 }
-setInterval(fetchData, 15000);     // 15-s refresh
+setInterval(fetchData, 15000);
 window.onload = fetchData;
-</script>
-</head><body style="font-family:monospace">
-  <h2>Live Feed</h2>
-  <pre id="out">loading…</pre>
+/* ---- Send command ---- */
+async function sendCmd(code){
+  const url = `https://api.thingspeak.com/update?api_key=${CMD_WRITE}&field1=${code}`;
+  await fetch(url);
+  alert("Command "+code+" queued");
+}
+</script></head><body>
+<h2>Live Feed</h2>
+<pre id="out">loading…</pre>
+
+<h3>Commands</h3>
+<button onclick="sendCmd(11)">CLR tokens</button>
+<button onclick="sendCmd(12)">GRACE flag</button>
+<button onclick="sendCmd(13)">CHEAT flag</button>
+<button onclick="sendCmd(21)">Vector Burst</button>
 </body></html>
