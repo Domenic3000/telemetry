@@ -15,10 +15,18 @@ const PUBLIC    = true;                          // true if CMD_CH is public
 const READ_KEY  = 3YEP34LVRFZDISRE;                            // set if CMD_CH private
 /* ---- Live fetch ---- */
 async function fetchData(){
-  const u = `https://api.thingspeak.com/channels/${DATA_CH}/feeds/last.json`;
-  const j = await (await fetch(u)).json();
-  document.getElementById('out').textContent =
-    JSON.stringify(j, null, 2);
+  try{
+    const u = `https://api.thingspeak.com/channels/${DATA_CH}/feeds/last.json`;
+    const res = await fetch(u, {mode:"cors"});
+    if(!res.ok) throw new Error(res.status+" "+res.statusText);
+    const j = await res.json();
+    document.getElementById('out').textContent =
+      JSON.stringify(j, null, 2);
+  }catch(err){
+    document.getElementById('out').textContent =
+      'Fetch error: '+err.message;
+    console.error(err);
+  }
 }
 setInterval(fetchData, 15000);
 window.onload = fetchData;
